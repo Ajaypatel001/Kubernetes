@@ -1,0 +1,112 @@
+-----------Day-1 # Setup Kubernetes / Day-2 : Basic Kubernetes Commands-----------
+
+#### AWS EKS Setup
+1. Setup kubectl 
+
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
+   chmod +x ./kubectl
+   mv ./kubectl /usr/local/bin 
+   kubectl version --short --client
+
+2. Setup eksctl 
+
+ curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+   sudo mv /tmp/eksctl /usr/local/bin
+   eksctl version
+
+3. Create an IAM Role and attache it to EC2 instance    
+   `Note: create IAM user with programmatic access if your bootstrap system is outside of AWS`   
+   IAM user should have access to   
+   IAM   
+   EC2   
+   VPC    
+   CloudFormation
+
+4. Create your cluster and nodes 
+
+eksctl create cluster --name naresh \
+      --region us-east-1 \
+   --node-type t2.small \
+------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
+
+
+kubectl get nodes        # check nodes
+ls                       # list files
+kubectl get pods         # check pods
+
+yum install git -y       # install git
+git clone <repo-url>     # clone repo
+
+kubectl apply -f pod.yml # create pod
+kubectl get pods         # check pods
+
+kubectl describe pod myapp   # pod details
+kubectl logs myapp           # check pod logs
+kubectl delete pod myapp     # delete pod
+ 
+----------create ReplicaSet.yml-----------
+
+kubectl apply -f replicaset.yml   # create replicaset
+kubectl get pods                  # check pods
+kubectl get rs                    # check replicaset
+
+kubectl delete pod <pod-name>     # delete any pod
+kubectl get pods                  # new pod auto created
+
+vi replicaset.yml                 # change image name
+kubectl apply -f replicaset.yml   # apply changes
+
+kubectl describe pod <pod-name>   # pod details
+kubectl delete rs web-rs          # delete replicaset
+kubectl get pods
+
+kubectl apply -f .     # apply all yaml files in current directory
+kubectl delete -f .    # delete all resources from current directory
+
+
+
+---------deployment-----------
+
+kubectl apply -f deployment.yml
+kubectl get pods
+kubectl get deploy
+kubectl get rs
+
+kubectl describe pod nginx-deployment-56bb7c45fc-2vjdt
+
+----------Image Change (Rolling Update)----------
+
+# change image name in deployment.yml
+kubectl apply -f deployment.yml   # one pod delete, one create automatically
+kubectl get pods -o wide          # detailed output
+
+----------create more pods----------- 
+kubectl apply -f deployment.yml
+kubectl get pods                  # pods may be Pending (nodes kam ho)
+
+crictl images     # check node images
+kubectl top node  # node resource usage
+
+-----------Day-4 : NodePort Service---------
+
+yum install git -y
+git clone <repo-url>
+
+kubectl get nodes
+kubectl apply -f NodePort.yml
+
+kubectl get pods
+kubectl get svc
+kubectl get pods -o wide
+kubectl get nodes -o wide
+kubectl delete -f NodePort.yml
+curl <NodeIP>:<NodePort>
+curl 192.168.1.10:30080
+
+
+
+
+NodePort Range:
+30000 – 32767
+
