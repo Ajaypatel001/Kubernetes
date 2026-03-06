@@ -1,0 +1,83 @@
+# ArgoCD Notes
+
+## What is ArgoCD
+
+Argo CD is a Kubernetes‑native Continuous Deployment (CD) tool.\
+It follows the **GitOps** approach where Git repositories act as the
+source of truth.
+
+Unlike traditional CD tools that push code to the cluster, **ArgoCD
+pulls the latest configuration from Git and automatically deploys it to
+Kubernetes.**
+
+------------------------------------------------------------------------
+
+## Install ArgoCD
+
+### 1. Create Namespace
+
+``` bash
+kubectl create namespace argocd
+```
+
+### 2. Install ArgoCD using official manifest
+
+``` bash
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+```
+
+### 3. Check all resources in argocd namespace
+
+``` bash
+kubectl get all -n argocd
+```
+
+------------------------------------------------------------------------
+
+## Expose ArgoCD Server
+
+Edit the service and enable **NodePort**.
+
+``` bash
+kubectl edit svc argocd-server -n argocd  # NodePort use NodePort and clister id Hit tha server open argocd
+```
+
+Change service type:
+
+``` yaml
+type: NodePort
+```
+
+------------------------------------------------------------------------
+
+## Get ArgoCD Admin Password
+
+``` bash
+kubectl get secret argocd-initial-admin-secret -n argocd -o yaml
+```
+
+The password will be Base64 encoded.
+
+Decode it using:
+
+``` bash
+echo "secret value" | base64 --decode
+```
+
+------------------------------------------------------------------------
+
+## Create a Development Namespace
+
+``` bash
+kubectl create ns dev
+```
+
+------------------------------------------------------------------------
+
+## Git Commit Example
+
+``` bash
+git add argocd-notes.md
+git commit -m "Added ArgoCD installation notes and commands"
+git push origin main
+```
