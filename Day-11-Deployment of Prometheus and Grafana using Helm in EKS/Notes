@@ -1,0 +1,10 @@
+Deployment of Prometheus and Grafana using Helm in EKS
+1. Introduction
+
+Prometheus and Grafana are widely used tools for monitoring Kubernetes clusters.
+
+Prometheus collects metrics such as CPU, memory, pods, and node usage.
+
+Grafana visualizes these metrics through dashboards.
+
+Together they create a Kubernetes monitoring stack.
