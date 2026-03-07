@@ -1,0 +1,149 @@
+---------day-5-horizonatl-scaling----------
+
+# Deployment Create
+kubectl create deployment nginx-hpa --image=nginx
+kubectl get deployments
+kubectl get pods
+
+# Deployment Edit (CPU limits using vi)
+kubectl edit deployment nginx-hpa
+
+# Add inside container
+resources:
+  requests:
+    cpu: "100m"
+  limits:
+    cpu: "200m"
+
+# vi save & exit
+Esc
+:wq
+
+# Expose Deployment
+kubectl expose deployment nginx-hpa --port=80 --type=NodePort
+kubectl get svc
+
+# Metrics Check
+kubectl top nodes
+kubectl top pods
+
+# Create HPA YAML using vi
+vi hpa.yaml
+
+# Paste below content
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx-hpa
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+# Save file
+Esc
+:wq
+
+# Apply HPA
+kubectl apply -f hpa.yaml
+kubectl get hpa
+kubectl describe hpa nginx-hpa
+
+# Load Generator (Traffic)
+kubectl run load-generator --image=busybox -it -- /bin/sh
+
+# Inside pod
+while true; do wget -q -O- http://nginx-hpa; done
+
+# Watch Pod Scaling
+kubectl get pods -w
+
+# Stop Load & Cleanup
+kubectl delete pod load-generator
+kubectl delete -f hpa.yaml
+kubectl delete svc nginx-hpa
+kubectl delete deployment nginx-hpa
+
+# vi Important Keys
+i     -> insert mode
+Esc   -> command mode
+:wq   -> save & exit
+:q!   -> exit without save
+
+--------namespace--------
+
+# Check all namespaces
+kubectl get ns
+kubectl get namespaces
+
+# Namespace details
+kubectl describe ns default
+
+# Create namespace (command)
+kubectl create namespace dev
+kubectl create namespace prod
+
+# Create namespace (YAML using vi)
+vi namespace.yml
+
+# Paste below content
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: test
+
+# Save file
+Esc
+:wq
+
+# Apply namespace YAML
+kubectl apply -f namespace.yaml
+
+# Check namespace
+kubectl get ns
+
+# Run pod in specific namespace
+kubectl run nginx --image=nginx -n dev
+
+# Get pods from specific namespace
+kubectl get pods -n dev
+
+# Get all resources from namespace
+kubectl get all -n dev
+
+# Set default namespace (current context)
+kubectl config set-context --current --namespace=dev
+
+# Check current context
+kubectl config view --minify | grep namespace
+
+# Create deployment in namespace
+kubectl create deployment myapp --image=nginx -n dev
+
+# Expose service in namespace
+kubectl expose deployment myapp --port=80 --type=NodePort -n dev
+
+# Delete pod from namespace
+kubectl delete pod nginx -n dev
+
+# Delete deployment from namespace
+kubectl delete deployment myapp -n dev
+
+# Delete namespace (ALL resources delete ho jayenge)
+kubectl delete namespace dev
+
+# vi Important Keys
+i     -> insert mode
+Esc   -> command mode
+:wq   -> save & exit
+:q!   -> exit without save
