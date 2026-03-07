@@ -1,10 +1,96 @@
-Deployment of Prometheus and Grafana using Helm in EKS
+Title: Deployment of Prometheus and Grafana on AWS EKS using Helm
+
 1. Introduction
-
-Prometheus and Grafana are widely used tools for monitoring Kubernetes clusters.
-
+Prometheus and Grafana are monitoring tools used to monitor Kubernetes clusters.
 Prometheus collects metrics such as CPU, memory, pods, and node usage.
-
 Grafana visualizes these metrics through dashboards.
 
-Together they create a Kubernetes monitoring stack.
+2. Install Helm
+Helm is a package manager for Kubernetes.
+
+Commands:
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+
+3. Add Helm Repositories
+
+helm repo add stable https://charts.helm.sh/stable
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+These repositories contain Helm charts for Prometheus and Grafana.
+
+4. Create Namespace
+
+kubectl create namespace prometheus
+
+Namespace helps organize Kubernetes resources.
+
+5. Install Prometheus and Grafana
+
+helm install stable prometheus-community/kube-prometheus-stack -n prometheus
+
+This command installs:
+- Prometheus
+- Grafana
+- Alertmanager
+- Node Exporter
+- kube-state-metrics
+
+6. Check Running Pods
+
+kubectl get pods -n prometheus
+
+7. Check Services
+
+kubectl get svc -n prometheus
+
+8. Expose Prometheus Service
+
+kubectl edit svc stable-kube-prometheus-sta-prometheus -n prometheus
+
+Change service type to:
+NodePort
+
+9. Expose Grafana Service
+
+kubectl edit svc stable-grafana -n prometheus
+
+Change service type to:
+NodePort
+
+10. Get Grafana Password
+
+kubectl get secret --namespace prometheus stable-grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+
+Default username: admin
+
+11. Access Grafana Dashboard
+
+Open in browser:
+
+http://<Node-IP>:<NodePort>
+
+Grafana dashboards show:
+- Pod CPU usage
+- Pod memory usage
+- Node metrics
+- Cluster health
+
+12. Monitoring Architecture
+
+AWS EKS Cluster
+      ↓
+Node Exporter + kube-state-metrics
+      ↓
+Prometheus (collects metrics)
+      ↓
+Grafana (visualizes metrics)
+
+13. Benefits
+
+- Real-time monitoring
+- Resource usage tracking
+- Performance analysis
+- Cluster health monitoring
