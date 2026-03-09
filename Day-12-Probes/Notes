@@ -1,0 +1,154 @@
+Kubernetes Probes Notes
+What are Probes in Kubernetes
+
+In Kubernetes, Probes are used to check the health and status of containers.
+
+Kubernetes uses probes to determine:
+
+Whether the application is alive
+
+Whether the application is ready to accept traffic
+
+Whether the application has started successfully
+
+There are three types of probes in Kubernetes:
+
+Liveness Probe
+
+Readiness Probe
+
+Startup Probe
+
+1. Liveness Probe
+
+A Liveness Probe checks whether the container is running or not.
+
+If the application becomes unresponsive or crashes, Kubernetes restarts the container automatically.
+
+Example YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: liveness-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    livenessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
+Important Fields
+
+initialDelaySeconds → Time before the first health check
+
+periodSeconds → Time interval between checks
+
+2. Readiness Probe
+
+A Readiness Probe checks whether the container is ready to receive user traffic.
+
+If the container is not ready, Kubernetes removes the pod from the Service, so no traffic is sent to it.
+
+Example YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    readinessProbe:
+      httpGet:
+        path: /
+        port: 80
+      initialDelaySeconds: 5
+      periodSeconds: 10
+3. Startup Probe
+
+A Startup Probe is used for applications that take a long time to start.
+
+It allows the application to start completely before Kubernetes begins health checks.
+
+After the startup probe succeeds, the liveness probe starts working.
+
+Example YAML
+apiVersion: v1
+kind: Pod
+metadata:
+  name: startup-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+    startupProbe:
+      httpGet:
+        path: /
+        port: 80
+      failureThreshold: 30
+      periodSeconds: 10
+CrashLoopBackOff Error
+
+CrashLoopBackOff is a common Kubernetes error.
+
+It occurs when a container repeatedly crashes and Kubernetes keeps restarting it.
+
+Possible Causes
+
+Application crash
+
+Incorrect configuration
+
+Liveness probe failure
+
+Wrong port or path in configuration
+
+Application takes too long to start
+
+If the container fails multiple times, Kubernetes shows the CrashLoopBackOff status.
+
+Commands to Troubleshoot CrashLoopBackOff
+Check Pods
+kubectl get pods
+Describe Pod
+kubectl describe pod <pod-name>
+
+Example
+
+kubectl describe pod liveness-pod
+Check Logs
+kubectl logs <pod-name>
+
+Example
+
+kubectl logs liveness-pod
+Delete Pod
+kubectl delete pod <pod-name>
+Kubernetes Commands
+Apply YAML files
+kubectl apply -f liv.yml
+kubectl apply -f red.yml
+kubectl apply -f svc.yml
+Check Pods
+kubectl get pods
+Check Services
+kubectl get svc
+Difference Between Probes
+Probe	Purpose
+Liveness Probe	Checks if the container is alive
+Readiness Probe	Checks if the container is ready to serve traffic
+Startup Probe	Checks if the application has started
+Simple Flow
+
+User sends request to Service
+
+Service forwards request to Pod
+
+Readiness Probe checks if the pod is ready
+
+Liveness Probe checks if the container is alive
+
+If the container fails, Kubernetes restarts it
