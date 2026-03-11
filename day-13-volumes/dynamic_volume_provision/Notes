@@ -1,11 +1,15 @@
-📚 Kubernetes Storage Notes (PV, PVC, Dynamic Volume Provisioning)
-1️⃣ Persistent Volume (PV)
+==============================
+Kubernetes Storage Notes
+(PV, PVC, Dynamic Provisioning)
+==============================
+
+
+1. Persistent Volume (PV)
+-------------------------
 
 Persistent Volume (PV) is the actual storage resource in the Kubernetes cluster.
 
-In Amazon EKS, the storage is usually backed by AWS EBS volumes.
-
-PV is generally created and managed by the cluster or through a StorageClass.
+In Amazon EKS, storage is usually backed by AWS EBS volumes.
 
 Example PV YAML
 
@@ -20,10 +24,15 @@ spec:
     - ReadWriteOnce
   storageClassName: ebs-storage
 
+
 Check PV
 
 kubectl get pv
-2️⃣ Persistent Volume Claim (PVC)
+
+
+
+2. Persistent Volume Claim (PVC)
+--------------------------------
 
 Persistent Volume Claim (PVC) is a request for storage made by a Pod.
 
@@ -32,6 +41,7 @@ A Pod does not use PV directly.
 Flow:
 
 Pod → PVC → PV → Storage
+
 
 Example PVC YAML
 
@@ -47,6 +57,7 @@ spec:
     requests:
       storage: 1Gi
 
+
 Create PVC
 
 kubectl apply -f pvc.yml
@@ -54,7 +65,11 @@ kubectl apply -f pvc.yml
 Check PVC
 
 kubectl get pvc
-3️⃣ Dynamic Volume Provisioning
+
+
+
+3. Dynamic Volume Provisioning
+------------------------------
 
 Normally:
 
@@ -63,7 +78,8 @@ User → PVC create
 
 But with Dynamic Provisioning, Kubernetes automatically creates a PV when a PVC is created.
 
-This works through a StorageClass.
+This works through StorageClass.
+
 
 Example StorageClass
 
@@ -75,6 +91,7 @@ provisioner: ebs.csi.aws.com
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: Delete
 
+
 Create StorageClass
 
 kubectl apply -f sc.yml
@@ -82,18 +99,21 @@ kubectl apply -f sc.yml
 Check StorageClass
 
 kubectl get sc
-4️⃣ volumeBindingMode
+
+
+
+4. volumeBindingMode
+--------------------
+
 Immediate
+
 volumeBindingMode: Immediate
 
 The volume is created immediately when the PVC is created.
 
-Flow:
 
-PVC Created
-   ↓
-PV Created Immediately
 WaitForFirstConsumer
+
 volumeBindingMode: WaitForFirstConsumer
 
 The volume is created only when a Pod using the PVC is scheduled.
@@ -106,12 +126,14 @@ Pod Scheduled
    ↓
 PV Created
 
-Benefit:
 
-Helps Kubernetes choose the correct node before creating the volume.
 
-5️⃣ reclaimPolicy
+5. reclaimPolicy
+----------------
+
+
 Delete
+
 reclaimPolicy: Delete
 
 Flow:
@@ -122,13 +144,9 @@ PV Deleted
    ↓
 Storage Deleted
 
-Use Case:
-
-Temporary environments
-
-Testing workloads
 
 Retain
+
 reclaimPolicy: Retain
 
 Flow:
@@ -139,59 +157,86 @@ PV Remains
    ↓
 Storage Remains
 
-Meaning:
+Data is not deleted. Manual cleanup is required.
 
-The storage and data are not deleted
 
-Manual cleanup is required
 
-Use Case:
-
-Databases
-
-Important production data
-
-6️⃣ StatefulSet Behavior
+6. StatefulSet Behavior
+-----------------------
 
 In StatefulSet, pods are created and deleted sequentially (one by one).
 
-Example pod order:
+Example:
 
 pod-0
 pod-1
 pod-2
 
-If a pod is deleted:
+
+Delete Pod
 
 kubectl delete pod pod-1
 
-Kubernetes recreates it with the same identity and storage.
 
-Check pods:
+Kubernetes recreates the pod with the same identity and storage.
+
+
+Check Pods
 
 kubectl get pods
-7️⃣ Important Kubernetes Commands
+
+
+
+7. Important Commands
+--------------------
+
+
 Check Storage Resources
+
 kubectl get pv
 kubectl get pvc
 kubectl get sc
+
+
 Describe Resources
+
 kubectl describe pv
 kubectl describe pvc
-🗑️ Delete Commands
+
+
+
+Delete Commands
+---------------
+
+
 Delete All PVC
+
 kubectl delete pvc --all
+
+
 Delete All PV
+
 kubectl delete pv --all
+
+
 Delete All Pods
+
 kubectl delete pods --all
+
+
 Delete Specific Pod
+
 kubectl delete pod pod-name
-📌 Short Summary
-Component	Meaning
-PV	Actual storage
-PVC	Storage request
-StorageClass	Defines storage configuration
-Dynamic Provisioning	Automatic PV creation
-Delete Policy	Storage deleted
-Retain Policy	Storage and data preserved
+
+
+
+==============================
+Summary
+==============================
+
+PV  → Actual storage
+PVC → Storage request
+StorageClass → Storage configuration
+Dynamic Provisioning → Automatic PV creation
+Delete Policy → Storage deleted
+Retain Policy → Storage preserved
