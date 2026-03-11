@@ -42,6 +42,8 @@ Example:
 
 image:
   repository: veeranarni/hotstar
+
+  
 Step 4: Configure NodePort
 
 In the service configuration, I added a NodePort.
