@@ -55,6 +55,8 @@ nodePort: 30000
 NodePort allows the application to be accessed externally using:
 
 http://<NodeIP>:30000
+
+
 Step 5: Go Outside the Project Folder
 
 Helm install command should not be executed inside the project folder.
@@ -62,11 +64,15 @@ Helm install command should not be executed inside the project folder.
 So I moved one directory back:
 
 cd ..
+
+
 Step 6: Install the Helm Chart
 
 Then I installed the Helm chart.
 
-helm install release1 ./project-1
+helm install release1 project-1
+
+
 Step 7: Check Cluster Resources
 
 Check Nodes:
@@ -80,6 +86,8 @@ kubectl get pods
 Check Services:
 
 kubectl get svc
+
+
 Step 8: Create Another Release
 
 I also created another release using the same chart.
@@ -92,7 +100,7 @@ Step 9: Upgrade Instead of Reinstall
 
 If we make changes in the chart, we should use upgrade instead of install.
 
-helm upgrade release2 ./project-1
+helm upgrade release2 project-1
 
 After upgrade:
 
