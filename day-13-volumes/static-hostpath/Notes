@@ -1,0 +1,46 @@
+Day-13 Notes – Kubernetes Volume Practice (AWS Cluster)
+1️⃣ Sabse pahle cluster check kiya
+
+Maine AWS Kubernetes cluster me nodes aur pods check kiye.
+
+kubectl get nodes
+kubectl get pods
+
+Isse pata chala ki cluster properly running hai.
+
+2️⃣ MySQL Pod ke andar enter kiya
+kubectl exec -it mysql-pod-name -- /bin/bash
+
+Is command se pod ke container ke andar shell open ho gaya.
+
+3️⃣ MySQL ko password se login kiya
+mysql -u root -p
+
+Phir MySQL password enter kiya.
+
+4️⃣ Database create kiya
+CREATE DATABASE testdb;
+
+Database check kiya:
+
+SHOW DATABASES;
+
+Isse confirm hua ki database successfully create ho gaya.
+
+5️⃣ Pod delete karke test kiya
+kubectl delete pod mysql-pod-name
+
+Kubernetes ne naya pod automatically create kar diya.
+
+6️⃣ Dubara MySQL login kiya
+kubectl exec -it mysql-pod-name -- /bin/bash
+mysql -u root -p
+SHOW DATABASES;
+
+Agar pod same node par create hua, to database still available tha.
+
+7️⃣ Observation
+
+✔ Pod delete hua → data delete nahi hua
+✔ Same node par naya pod → old database mil gaya
+❌ Different node par pod → old data nahi mila (hostPath volume case)
