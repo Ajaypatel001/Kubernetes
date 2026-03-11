@@ -145,3 +145,19 @@ Performed Helm upgrade
 Accessed application using Node IP and NodePort
 
 Helm simplifies Kubernetes application deployment and management.
+
+--------------------------------------------
+Code
+ ↓
+Docker Build
+ ↓
+Docker Hub
+ ↓
+Helm Chart
+ ↓
+Kubernetes (EKS)
+ ↓
+NodePort / LoadBalancer
+ ↓
+Browser
+---------------------------------------------
