@@ -37,9 +37,19 @@ kubectl exec -it mysql-pod-name -- /bin/bash
 mysql -u root -p
 SHOW DATABASES;
 
+7. Pod ko dusre node par schedule karke test kiya
+
+Dusre node par pod schedule karne ke liye maine node ko taint kiya.
+
+Example:
+
+kubectl taint node node-name app=blue:NoSchedule
+
+Isse pod dusre node par create ho gaya.
+
 Agar pod same node par create hua, to database still available tha.
 
-7️⃣ Observation
+8. Observation
 
 ✔ Pod delete hua → data delete nahi hua
 ✔ Same node par naya pod → old database mil gaya
