@@ -1,0 +1,243 @@
+
+==============================
+Kubernetes Storage Notes
+(PV, PVC, Dynamic Provisioning)
+==============================
+
+
+1. Persistent Volume (PV)
+-------------------------
+
+Persistent Volume (PV) is the actual storage resource in the Kubernetes cluster.
+
+In Amazon EKS, storage is usually backed by AWS EBS volumes.
+
+Example PV YAML
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-storage
+
+
+Check PV
+
+kubectl get pv
+
+
+
+2. Persistent Volume Claim (PVC)
+--------------------------------
+
+Persistent Volume Claim (PVC) is a request for storage made by a Pod.
+
+A Pod does not use PV directly.
+
+Flow:
+
+Pod → PVC → PV → Storage
+
+
+Example PVC YAML
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ebs-storage
+  resources:
+    requests:
+      storage: 1Gi
+
+
+Create PVC
+
+kubectl apply -f pvc.yml
+
+Check PVC
+
+kubectl get pvc
+
+
+
+3. Dynamic Volume Provisioning
+------------------------------
+
+Normally:
+
+Admin → PV create
+User → PVC create
+
+But with Dynamic Provisioning, Kubernetes automatically creates a PV when a PVC is created.
+
+This works through StorageClass.
+
+
+Example StorageClass
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: ebs-storage
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+
+
+Create StorageClass
+
+kubectl apply -f sc.yml
+
+Check StorageClass
+
+kubectl get sc
+
+
+
+4. volumeBindingMode
+--------------------
+
+Immediate
+
+volumeBindingMode: Immediate
+
+The volume is created immediately when the PVC is created.
+
+
+WaitForFirstConsumer
+
+volumeBindingMode: WaitForFirstConsumer
+
+The volume is created only when a Pod using the PVC is scheduled.
+
+Flow:
+
+PVC Created
+   ↓
+Pod Scheduled
+   ↓
+PV Created
+
+
+
+5. reclaimPolicy
+----------------
+
+
+Delete
+
+reclaimPolicy: Delete
+
+Flow:
+
+PVC Deleted
+   ↓
+PV Deleted
+   ↓
+Storage Deleted
+
+
+Retain
+
+reclaimPolicy: Retain
+
+Flow:
+
+PVC Deleted
+   ↓
+PV Remains
+   ↓
+Storage Remains
+
+Data is not deleted. Manual cleanup is required.
+
+
+
+6. StatefulSet Behavior
+-----------------------
+
+In StatefulSet, pods are created and deleted sequentially (one by one).
+
+Example:
+
+pod-0
+pod-1
+pod-2
+
+
+Delete Pod
+
+kubectl delete pod pod-1
+
+
+Kubernetes recreates the pod with the same identity and storage.
+
+
+Check Pods
+
+kubectl get pods
+
+
+
+7. Important Commands
+--------------------
+
+
+Check Storage Resources
+
+kubectl get pv
+kubectl get pvc
+kubectl get sc
+
+
+Describe Resources
+
+kubectl describe pv
+kubectl describe pvc
+
+
+
+Delete Commands
+---------------
+
+
+Delete All PVC
+
+kubectl delete pvc --all
+
+
+Delete All PV
+
+kubectl delete pv --all
+
+
+Delete All Pods
+
+kubectl delete pods --all
+
+
+Delete Specific Pod
+
+kubectl delete pod pod-name
+
+
+
+==============================
+Summary
+==============================
+
+PV  → Actual storage
+PVC → Storage request
+StorageClass → Storage configuration
+Dynamic Provisioning → Automatic PV creation
+Delete Policy → Storage deleted
+Retain Policy → Storage preserved
