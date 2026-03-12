@@ -1,0 +1,97 @@
+Day-15 Notes – Video Application Deployment using Docker, GitHub & Helm
+1️⃣ Helm Installation
+
+Sabse pehle server par Helm install kiya.
+
+wget https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
+tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/helm
+helm version
+2️⃣ Video File Preparation
+
+Video file ko GitHub repository me upload kiya.
+
+Server par wget command se video download kiya.
+
+3️⃣ Docker Project Folder
+
+Ek folder banaya:
+
+mkdir video-app
+cd video-app
+4️⃣ Docker me 3 files create ki
+
+Docker project me 3 files create ki:
+
+video-app
+ ├── Dockerfile
+ ├── index.html
+ └── video.mp4
+Dockerfile
+
+Container ke liye Dockerfile banaya jisme Nginx use kiya.
+
+index.html
+
+HTML file create ki jisme video play hota hai.
+
+video.mp4
+
+Application ke liye video file use ki.
+
+5️⃣ Docker Image Build
+
+Docker image build ki:
+
+docker build -t ajaypatel001/video-app:v1 .
+6️⃣ Docker Hub Login
+
+Docker Hub me login kiya:
+
+docker login
+
+Username aur password enter kiya.
+
+7️⃣ Docker Image Push
+
+Image ko Docker Hub me push kiya:
+
+docker push ajaypatel001/video-app:v1
+8️⃣ Helm Chart Creation
+
+Helm chart create kiya:
+
+helm create project-1
+
+Isse Helm chart ka structure create ho gaya.
+
+9️⃣ values.yaml Configuration
+
+values.yaml me Docker image repository aur tag update kiya.
+
+image:
+  repository: ajaypatel001/video-app
+  tag: v1
+  pullPolicy: IfNotPresent
+
+Service type ko NodePort / LoadBalancer set kiya.
+
+🔟 Application Deployment using Helm
+
+Application deploy ki:
+
+helm install video project-1
+1️⃣1️⃣ Deployment Verification
+
+Pods check kiye:
+
+kubectl get pods
+
+Services check ki:
+
+kubectl get svc
+1️⃣2️⃣ Result
+
+Video application Kubernetes cluster me successfully deploy ho gayi.
+
+Browser ke through service URL se video play hua.
