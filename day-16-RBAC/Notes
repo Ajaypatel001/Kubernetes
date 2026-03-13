@@ -1,0 +1,154 @@
+RBAC (Role-Based Access Control) – Notes
+1. What is RBAC
+
+RBAC stands for Role-Based Access Control.
+
+It is a security mechanism used to control who can access what resources and what actions they can perform in a system.
+
+RBAC is commonly used in:
+
+Kubernetes
+
+AWS
+
+Linux systems
+
+Example:
+
+Who can view pods
+
+Who can create pods
+
+Who can delete pods
+
+2. Purpose of RBAC
+
+The main purpose of RBAC is:
+
+Improve system security
+
+Prevent unauthorized access
+
+Give limited permissions to users
+
+Example:
+
+User	Permission
+Admin	Full access
+Developer	Create and view pods
+Viewer	Only view
+3. RBAC Components in Kubernetes
+1️⃣ Role
+
+A Role defines what permissions are allowed.
+
+Example: permission to read pods.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]
+
+This role allows a user to view pods.
+
+2️⃣ RoleBinding
+
+RoleBinding connects a Role to a user or group.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: dev-user
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+3️⃣ ClusterRole
+
+A ClusterRole defines permissions for cluster-level resources.
+
+Example:
+
+nodes
+
+storage
+
+cluster resources
+
+4️⃣ ClusterRoleBinding
+
+ClusterRoleBinding assigns a ClusterRole to a user or group.
+
+4. RBAC Flow
+User → RoleBinding → Role → Permission
+
+This means:
+
+User gets a Role through RoleBinding
+
+Role defines what actions the user can perform
+
+5. Practical Example (EKS + IAM Role)
+
+I created an EKS cluster in AWS.
+
+Step 1
+
+First, I created an EKS cluster.
+
+Step 2
+
+Then I attached an IAM Role to the cluster.
+
+Step 3
+
+After that, I connected the cluster from my server.
+
+Command used:
+
+aws eks update-kubeconfig --region us-east-1 --name Ajay
+
+This command updated the kubeconfig file, allowing kubectl to communicate with the cluster.
+
+Step 4
+
+Then I created another new EKS cluster.
+
+Step 5
+
+I connected this cluster using the same IAM Role.
+
+Step 6
+
+After setting up the cluster, I ran the command:
+
+kubectl get nodes
+
+Result:
+
+The nodes were displayed successfully.
+
+This means:
+
+The IAM Role allowed access
+
+RBAC permissions allowed the user to interact with the cluster
+
+6. Benefits of RBAC
+
+Improves system security
+
+Prevents unauthorized access
+
+Provides limited access to users
+
+Makes cluster management easier
