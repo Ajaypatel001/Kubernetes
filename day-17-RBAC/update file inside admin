@@ -1,0 +1,26 @@
+ kubectl edit cm aws-auth -n kube-system  #  adit file 
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  mapRoles: |
+    - rolearn: arn:aws:iam::590183676219:role/eksctl-Ajay-nodegroup-ng-1dd4f5e8-NodeInstanceRole-xnYqLyeESu20
+      groups:
+      - system:bootstrappers
+      - system:nodes
+      username: system:node:{{EC2PrivateDNSName}}
+  mapUsers: |
+    - userarn: arn:aws:iam::590183676219:user/Nareshit
+      username: nareshit
+     groups:
+     - developer
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2026-03-16T11:35:00Z"
+  name: aws-auth
+  namespace: kube-system
+  resourceVersion: "16863"
+  uid: 0a09943c-ee0b-43d7-8d9f-f1590ccba146
+~                                            
