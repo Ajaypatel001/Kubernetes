@@ -1,0 +1,161 @@
+1️⃣ AWS CLI Configuration (Admin)
+
+First, configure AWS CLI with the admin user's access key.
+
+aws configure --profile Ajay
+
+Enter the following details:
+
+AWS Access Key ID:
+AWS Secret Access Key:
+Default region name: us-east-1
+Default output format: json
+
+This creates an AWS CLI profile for the admin user.
+
+2️⃣ Connect Admin to the EKS Cluster
+
+Use the admin profile to connect to the cluster.
+
+aws eks update-kubeconfig --region us-east-1 --name Ajay --profile Ajay
+
+Verify the connection:
+
+kubectl get nodes
+
+If nodes appear, the admin user is successfully connected.
+
+3️⃣ Create a New IAM User
+
+In the AWS console:
+
+IAM → Users → Create User
+
+Example user:
+
+Nareshit
+
+Then create an Access Key for CLI usage.
+
+You will get:
+
+Access Key ID
+
+Secret Access Key
+
+4️⃣ Configure the New User in AWS CLI
+aws configure --profile Nareshit
+
+Enter the keys and region.
+
+Access Key
+Secret Key
+us-east-1
+json
+5️⃣ Connect the User to the EKS Cluster
+aws eks update-kubeconfig --region us-east-1 --name Ajay --profile Nareshit
+
+If the user does not have permission, you will see:
+
+Unauthorized
+6️⃣ Give Cluster Access to the User
+
+Admin must add the user to the aws-auth ConfigMap.
+
+Run:
+
+kubectl edit configmap aws-auth -n kube-system
+
+Add the user:
+
+mapUsers:
+- userarn: arn:aws:iam::ACCOUNT-ID:user/Nareshit
+  username: Nareshit
+  groups:
+    - system:masters
+
+Now the user can access the cluster.
+
+7️⃣ Switching Between Admin and User
+
+Switch to Admin:
+
+aws eks update-kubeconfig --region us-east-1 --name Ajay --profile Ajay
+
+Switch to User:
+
+aws eks update-kubeconfig --region us-east-1 --name Ajay --profile Nareshit
+8️⃣ Check Current IAM User
+aws sts get-caller-identity
+
+Check Kubernetes context:
+
+kubectl config current-context
+9️⃣ RBAC Roles in Kubernetes
+Role
+
+Provides permissions within a specific namespace.
+
+Example:
+A developer can view pods only in the dev namespace.
+
+ClusterRole
+
+Provides permissions across the entire cluster.
+
+Example:
+Cluster admins managing nodes and all namespaces.
+
+🔟 Assigning Permissions
+
+Permissions are assigned using:
+
+RoleBinding
+
+ClusterRoleBinding
+
+Example permissions:
+
+User can:
+
+view pods
+
+create pods
+
+delete pods
+
+manage deployments
+
+Limited permission example:
+
+User can only view pods.
+
+Full permission:
+
+system:masters
+1️⃣1️⃣ Common Error
+
+Error:
+
+You must be logged in to the server (Unauthorized)
+
+Reason:
+
+The IAM user is not added in aws-auth ConfigMap.
+
+1️⃣2️⃣ Access Flow in EKS
+
+IAM User
+↓
+AWS CLI authentication
+↓
+aws-auth ConfigMap
+↓
+Kubernetes RBAC
+↓
+Cluster resource access
+
+✅ Short Interview Explanation
+
+In Amazon EKS, IAM users authenticate to the cluster using AWS credentials.
+Access to Kubernetes resources is controlled using RBAC through Roles and ClusterRoles, and IAM users must be added to the aws-auth ConfigMap to gain cluster access.
