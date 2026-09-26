@@ -5,6 +5,9 @@ Prometheus and Grafana are monitoring tools used to monitor Kubernetes clusters.
 Prometheus collects metrics such as CPU, memory, pods, and node usage.
 Grafana visualizes these metrics through dashboards.
 
+
+
+
 2. Install Helm
 Helm is a package manager for Kubernetes.
 
